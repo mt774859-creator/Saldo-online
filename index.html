@@ -1,124 +1,53 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Carregar Saldo CVMóvel</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f2f2f2;
-            margin: 0;
-            padding: 0;
-        }
-        header {
-            background: #0077ff;
-            color: white;
-            padding: 20px;
-            text-align: center;
-            font-size: 24px;
-        }
-        .container {
-            max-width: 450px;
-            background: white;
-            margin: 30px auto;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        input, button {
-            width: 100%;
-            padding: 12px;
-            margin-top: 10px;
-            font-size: 16px;
-        }
-        button {
-            background: #0077ff;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 6px;
-        }
-        button:hover {
-            opacity: 0.9;
-        }
-        .saldo-box {
-            background: #e9f1ff;
-            padding: 15px;
-            border-radius: 6px;
-            margin-top: 15px;
-            font-size: 20px;
-            text-align: center;
-        }
-        .historico {
-            margin-top: 20px;
-        }
-        .hist-item {
-            background: #fafafa;
-            padding: 12px;
-            border-radius: 6px;
-            margin-top: 10px;
-            border-left: 4px solid #0077ff;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elyon Ultra Inteligente</title>
+<style>
+body {margin:0; font-family: Arial, sans-serif; background:#f0f2f5;}
+header {background:#6a1b9a;color:white;padding:20px;text-align:center;font-size:24px;}
+.chat-container {max-width:600px;margin:20px auto;background:white;border-radius:10px;box-shadow:0 0 10px rgba(0,0,0,0.1);display:flex;flex-direction:column;height:75vh;}
+.messages {flex:1;padding:15px;overflow-y:auto;}
+.msg {background:#e0e0e0;padding:10px 14px;border-radius:8px;margin-bottom:12px;max-width:70%;}
+.user-msg {background:#6a1b9a;color:white;margin-left:auto;}
+.input-area {display:flex;border-top:1px solid #ddd;}
+.input-area input {flex:1;padding:12px;font-size:16px;border:none;}
+.input-area button {width:100px;background:#6a1b9a;color:white;border:none;cursor:pointer;font-size:16px;}
+</style>
 </head>
 <body>
-
-<header>Carregar Saldo - CVMóvel</header>
-
-<div class="container">
-    <h2>Adicionar Saldo</h2>
-
-    <label>Número CVMóvel:</label>
-    <input type="text" id="numero" placeholder="ex: 9876543" />
-
-    <label>Valor a carregar (CVE):</label>
-    <input type="number" id="valor" placeholder="ex: 500" />
-
-    <button onclick="carregar()">Carregar Saldo</button>
-
-    <div class="saldo-box" id="saldoBox">Saldo Atual: 0 CVE</div>
-
-    <div class="historico" id="historico"></div>
+<header>Elyon Ultra Inteligente</header>
+<div class="chat-container">
+<div class="messages" id="messages"></div>
+<div class="input-area">
+<input type="text" id="inputMsg" placeholder="Faça uma pergunta..." onkeypress="if(event.key==='Enter') perguntar()">
+<button onclick="perguntar()">Perguntar</button>
 </div>
-
+</div>
 <script>
-    let saldo = 0;
-    let historico = [];
-
-    function carregar() {
-        const numero = document.getElementById('numero').value;
-        const valor = parseInt(document.getElementById('valor').value);
-
-        if (!numero || valor <= 0) {
-            alert("Preencha o número e o valor corretamente.");
-            return;
-        }
-
-        saldo += valor;
-        historico.push({ numero, valor, data: new Date().toLocaleString() });
-
-        document.getElementById('saldoBox').innerText = `Saldo Atual: ${saldo} CVE`;
-
-        atualizarHistorico();
-        document.getElementById('valor').value = "";
-    }
-
-    function atualizarHistorico() {
-        const div = document.getElementById('historico');
-        div.innerHTML = "<h3>Histórico de Carregamentos</h3>";
-
-        historico.forEach(item => {
-            div.innerHTML += `
-                <div class='hist-item'>
-                    <strong>Número:</strong> ${item.numero}<br>
-                    <strong>Valor:</strong> ${item.valor} CVE<br>
-                    <strong>Data:</strong> ${item.data}
-                </div>
-            `;
-        });
-    }
+async function perguntar(){
+const campo=document.getElementById('inputMsg');
+const texto=campo.value.trim();
+if(texto==='')return;
+adicionarMensagem(texto,true);
+campo.value='';
+try{
+const resposta=await fetch('https://seu-servidor.com/api/elyon',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pergunta:texto})});
+const data=await resposta.json();
+adicionarMensagem(data.resposta,false);
+}catch(e){
+adicionarMensagem('Erro ao obter resposta da IA. Verifique seu servidor e API.',false);
+}}
+function adicionarMensagem(texto,user=false){
+const box=document.getElementById('messages');
+const div=document.createElement('div');
+div.classList.add('msg');
+if(user)div.classList.add('user-msg');
+div.textContent=texto;
+box.appendChild(div);
+box.scrollTop=box.scrollHeight;
+}
 </script>
-
 </body>
 </html>
